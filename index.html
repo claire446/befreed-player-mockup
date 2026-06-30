@@ -8,6 +8,10 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="BeFreed">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <title>BeFreed Player — Atomic Habits</title>
 <style>
   :root{
@@ -87,7 +91,7 @@
   .ctl:hover{opacity:.85;}
   .ctl svg{width:34px;height:34px;}
   .skip{position:relative;}
-  .skip .num{position:absolute;inset:0;display:grid;place-items:center;font-size:9px;font-weight:700;top:2px;}
+  .skip .num{position:absolute;inset:0;display:grid;place-items:center;font-size:10px;font-weight:700;letter-spacing:-.3px;}
   .play{width:74px;height:74px;border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:0 10px 26px rgba(0,0,0,.4);}
   .play svg{width:30px;height:30px;color:#0a0f1c;}
 
@@ -189,14 +193,14 @@
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 6h2v12H7zM20 6v12L9 12z"/></svg>
           </button>
           <button class="ctl skip" aria-label="back 30" onclick="seekBy(-30)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4 6 9l5 5"/><path d="M6 9h8a6 6 0 1 1 0 12H9"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-5L1 10"/></svg>
             <span class="num">30</span>
           </button>
           <button class="ctl play" aria-label="play/pause" onclick="togglePlay()">
             <svg id="bigicon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5h3v14H8zM13 5h3v14h-3z"/></svg>
           </button>
           <button class="ctl skip" aria-label="forward 30" onclick="seekBy(30)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m13 4 5 5-5 5"/><path d="M18 9h-8a6 6 0 1 0 0 12h5"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
             <span class="num">30</span>
           </button>
           <button class="ctl" aria-label="end" onclick="next()">
@@ -241,8 +245,8 @@
           <div class="s" id="miniLeft">5h 34m left</div>
         </div>
         <button class="mctl" aria-label="back 30" onclick="seekBy(-30)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4 6 9l5 5"/><path d="M6 9h8a6 6 0 1 1 0 12H9"/></svg>
-          <span style="position:absolute;font-size:8px;font-weight:700;top:10px;left:0;right:0;text-align:center;">30</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-5L1 10"/></svg>
+          <span style="position:absolute;inset:0;display:grid;place-items:center;font-size:8px;font-weight:700;">30</span>
         </button>
         <button class="mctl mplay" aria-label="play/pause" onclick="togglePlay()">
           <svg id="miniicon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5h3v14H8zM13 5h3v14h-3z"/></svg>
