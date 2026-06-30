@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>BeFreed Player — Atomic Habits</title>
 <style>
   :root{
@@ -17,19 +17,21 @@
   body{
     margin:0;
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    background:radial-gradient(1200px 800px at 50% -10%,#1b2236 0%,#0a0d16 60%,#05070d 100%);
+    background:#05070d;
     color:var(--ink);
-    display:flex;align-items:center;justify-content:center;min-height:100vh;padding:32px 16px;
+    overscroll-behavior:none;
   }
 
-  .phone{
-    width:390px;height:844px;border-radius:54px;background:#000;padding:12px;
-    box-shadow:0 40px 120px rgba(0,0,0,.6), 0 0 0 2px #1b1f2c inset;position:relative;
+  /* full-screen responsive app; centered column with a cap on big screens */
+  .screen{
+    position:relative;
+    width:100%;max-width:520px;margin:0 auto;
+    height:100vh;height:100dvh;
+    overflow:hidden;background:var(--bg);
+    display:flex;flex-direction:column;
   }
-  .screen{position:relative;width:100%;height:100%;border-radius:42px;overflow:hidden;background:var(--bg);display:flex;flex-direction:column;}
-  .island{position:absolute;top:14px;left:50%;transform:translateX(-50%);width:118px;height:32px;background:#000;border-radius:20px;z-index:50;}
 
-  .view{display:none;flex-direction:column;height:100%;}
+  .view{display:none;flex-direction:column;flex:1;min-height:0;}
   .view.active{display:flex;}
 
   #listen{
@@ -39,7 +41,7 @@
   }
 
   /* top segmented toggle */
-  .topbar{padding:54px 20px 6px;display:flex;justify-content:center;flex:0 0 auto;}
+  .topbar{padding:calc(env(safe-area-inset-top) + 16px) 20px 6px;display:flex;justify-content:center;flex:0 0 auto;}
   .seg{display:flex;background:rgba(255,255,255,.10);border-radius:30px;padding:5px;gap:4px;backdrop-filter:blur(8px);}
   .seg button{border:0;background:transparent;color:#e7e9f0;font-size:15px;font-weight:600;padding:9px 20px;border-radius:24px;cursor:pointer;transition:.25s;letter-spacing:.2px;}
   .seg button.on{background:#fff;color:#11131c;box-shadow:0 2px 8px rgba(0,0,0,.25);}
@@ -48,7 +50,7 @@
   .listen-body{
     flex:1;display:flex;flex-direction:column;align-items:center;
     justify-content:space-between;          /* fills the vertical gap evenly */
-    padding:26px 28px 26px;
+    padding:26px 28px calc(env(safe-area-inset-bottom) + 24px);
   }
 
   .cover-wrap{position:relative;flex:0 0 auto;}
@@ -90,7 +92,7 @@
 
   /* ============ READ & LISTEN ============ */
   #read{background:#070a12;}
-  .read-body{flex:1;overflow-y:auto;padding:14px 26px 150px;}
+  .read-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 26px calc(env(safe-area-inset-bottom) + 150px);}
   .read-body::-webkit-scrollbar{display:none;}
   .chapter-head{margin:22px 0 34px;padding:11px 16px;border:2.5px solid #4d566e;border-radius:3px;background:linear-gradient(180deg,#11151f,#0a0d15);}
   .chapter-head h1{
@@ -108,7 +110,7 @@
   .read-tools .lines i:nth-child(2){width:14px;}
   .read-tools .aa{font-size:20px;font-weight:700;font-family:Georgia,serif;}
 
-  .mini{position:absolute;left:14px;right:14px;bottom:18px;background:rgba(22,26,38,.92);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.06);border-radius:18px;padding:11px 13px;display:flex;align-items:center;gap:12px;box-shadow:0 14px 40px rgba(0,0,0,.5);}
+  .mini{position:absolute;left:14px;right:14px;bottom:calc(env(safe-area-inset-bottom) + 16px);background:rgba(22,26,38,.92);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.06);border-radius:18px;padding:11px 13px;display:flex;align-items:center;gap:12px;box-shadow:0 14px 40px rgba(0,0,0,.5);}
   .mini .thumb{width:46px;height:46px;border-radius:9px;overflow:hidden;flex:0 0 auto;box-shadow:0 4px 12px rgba(0,0,0,.4);}
   .mini .thumb img{width:100%;height:100%;object-fit:cover;display:block;}
   .mini .meta{flex:1;min-width:0;}
@@ -119,14 +121,11 @@
   .mini .mplay{width:42px;height:42px;border-radius:50%;background:#fff;display:grid;place-items:center;}
   .mini .mplay svg{width:18px;height:18px;color:#0a0f1c;}
 
-  .hint{position:fixed;bottom:14px;left:0;right:0;text-align:center;color:#566079;font-size:12px;padding:0 12px;}
 </style>
 </head>
 <body>
 
-<div class="phone">
   <div class="screen">
-    <div class="island"></div>
 
     <div class="topbar">
       <div class="seg">
@@ -221,9 +220,6 @@
     </div>
 
   </div>
-</div>
-
-<div class="hint">Everything’s live — play/pause, drag the bar to seek, change speed, toggle Car Mode, switch tabs.</div>
 
 <script>
   // ----- playback state -----
