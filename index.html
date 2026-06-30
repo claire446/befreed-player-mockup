@@ -156,6 +156,33 @@
     .chapter-head h1{font-size:36px;}
     .read-tools .aa{font-size:22px;}
   }
+
+  /* ===== "Add to Home Screen" coach (only shows in a browser, never in the installed app) ===== */
+  .a2hs{position:fixed;left:0;right:0;bottom:0;z-index:200;display:flex;flex-direction:column;align-items:center;
+    padding:0 14px calc(env(safe-area-inset-bottom) + 14px);pointer-events:none;}
+  .a2hs[hidden]{display:none;}
+  .a2hs-card{pointer-events:auto;width:100%;max-width:520px;display:flex;align-items:center;gap:12px;
+    background:rgba(28,32,46,.97);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.10);
+    border-radius:18px;padding:13px 14px;box-shadow:0 16px 46px rgba(0,0,0,.6);
+    animation:a2hsUp .45s cubic-bezier(.2,.9,.3,1.2) both;}
+  .a2hs-icon{width:46px;height:46px;border-radius:11px;flex:0 0 auto;box-shadow:0 4px 12px rgba(0,0,0,.4);}
+  .a2hs-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;}
+  .a2hs-text strong{font-size:14.5px;font-weight:800;}
+  .a2hs-text span{font-size:12.5px;line-height:1.45;color:#c7ccdb;}
+  .a2hs-text b{color:#fff;font-weight:700;}
+  .a2hs-install{flex:0 0 auto;background:#fff;color:#11131c;border:0;font-weight:800;font-size:13px;padding:9px 15px;border-radius:12px;cursor:pointer;}
+  .a2hs-install[hidden]{display:none;}
+  .a2hs-close{flex:0 0 auto;align-self:flex-start;background:rgba(255,255,255,.08);border:0;color:#cfd3dd;width:26px;height:26px;border-radius:50%;font-size:13px;cursor:pointer;display:grid;place-items:center;}
+  .a2hs-arrow{pointer-events:none;margin-top:8px;animation:a2hsBounce 1.2s ease-in-out infinite;filter:drop-shadow(0 2px 6px rgba(0,0,0,.5));}
+  .a2hs-arrow svg{display:block;}
+  .a2hs-arrow[hidden]{display:none;}
+  @keyframes a2hsUp{from{opacity:0;transform:translateY(34px);}to{opacity:1;transform:none;}}
+  @keyframes a2hsBounce{0%,100%{transform:translateY(0);}50%{transform:translateY(8px);}}
+  /* iPad: Safari share button is at the top, so dock the coach up there and flip the arrow */
+  .a2hs.up{top:0;bottom:auto;justify-content:flex-start;padding:calc(env(safe-area-inset-top) + 10px) 14px 0;}
+  .a2hs.up .a2hs-arrow{order:-1;margin:0 0 8px;animation-name:a2hsBounceUp;}
+  .a2hs.up .a2hs-arrow svg{transform:rotate(180deg);}
+  @keyframes a2hsBounceUp{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
 </style>
 </head>
 <body>
@@ -256,6 +283,22 @@
 
   </div>
 
+  <!-- Add-to-Home-Screen coach (shown only in a browser, hidden in the installed app) -->
+  <div id="a2hs" class="a2hs" hidden>
+    <div class="a2hs-card">
+      <img class="a2hs-icon" src="apple-touch-icon.png" alt="BeFreed" onerror="this.style.display='none'">
+      <div class="a2hs-text">
+        <strong>装成 App,全屏使用</strong>
+        <span id="a2hsMsg"></span>
+      </div>
+      <button id="a2hsInstall" class="a2hs-install" hidden>安装</button>
+      <button id="a2hsClose" class="a2hs-close" aria-label="关闭">✕</button>
+    </div>
+    <div class="a2hs-arrow" id="a2hsArrow">
+      <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
+    </div>
+  </div>
+
 <script>
   // ----- playback state -----
   const TOTAL = 5*3600 + 35*60;   // 5h 35m audiobook
@@ -348,6 +391,61 @@
   }
 
   render();
+
+  // ----- Add-to-Home-Screen coach -----
+  (function(){
+    const sheet = document.getElementById('a2hs');
+    const msg = document.getElementById('a2hsMsg');
+    const installBtn = document.getElementById('a2hsInstall');
+    const closeBtn = document.getElementById('a2hsClose');
+    const arrow = document.getElementById('a2hsArrow');
+
+    const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    const ua = navigator.userAgent;
+    const isIOS = /iphone|ipad|ipod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const isIPad = /ipad/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+                   || (isIOS && Math.min(screen.width, screen.height) >= 744);
+    const isAndroid = /android/i.test(ua);
+    const isMobile = isIOS || isAndroid;
+    let deferred = null;
+
+    function hide(){ sheet.hidden = true; }
+    function show(){ sheet.hidden = false; }
+
+    closeBtn.addEventListener('click', () => { hide(); try{ localStorage.setItem('a2hs-dismissed','1'); }catch(e){} });
+    installBtn.addEventListener('click', async () => {
+      if(!deferred) return;
+      deferred.prompt();
+      try{ await deferred.userChoice; }catch(e){}
+      deferred = null; hide();
+    });
+    window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferred = e; maybeShow(); });
+    window.addEventListener('appinstalled', hide);
+    // hide instantly if the user installs / switches to standalone mid-session
+    window.matchMedia('(display-mode: standalone)').addEventListener?.('change', e => { if(e.matches) hide(); });
+
+    function maybeShow(){
+      if (standalone) return;                         // already the installed app — never nag
+      try{ if(localStorage.getItem('a2hs-dismissed')) return; }catch(e){}
+      if (isIOS){
+        installBtn.hidden = true; arrow.hidden = false;
+        if (isIPad){
+          sheet.classList.add('up');
+          msg.innerHTML = '点右上角的「<b>分享</b>」按钮 → 选「<b>添加到主屏幕</b>」,再从图标打开,就没有地址栏了。';
+        } else {
+          msg.innerHTML = '点底部的「<b>分享</b>」按钮 → 选「<b>添加到主屏幕</b>」,再从图标打开,就没有地址栏了。';
+        }
+        show();
+      } else if (deferred){                           // Android / desktop Chrome: real one-tap install
+        installBtn.hidden = false; arrow.hidden = true;
+        msg.innerHTML = '一键安装到桌面,像 App 一样全屏使用,没有地址栏。';
+        show();
+      }
+      // desktop Safari / other: nothing to do
+    }
+
+    if (!standalone && isMobile) setTimeout(maybeShow, 900);
+  })();
 </script>
 </body>
 </html>
